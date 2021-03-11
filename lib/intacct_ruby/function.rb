@@ -10,6 +10,7 @@ module IntacctRuby
       read
       readByName
       readMore
+      readEntityDetails
       create
       update
       delete
@@ -53,14 +54,32 @@ module IntacctRuby
       "#{@function_type}-#{@object_type}-#{timestamp}"
     end
 
+    # SPLIT key is an array of implicit objects, if it goes through the normal recursive function the result is 
+    # combinded into one XML key. The check on 65 will ensure that each implicit object is converted with a SPLIT tag
     def parameter_xml(parameters_to_convert)
       xml = Builder::XmlMarkup.new
 
       parameters_to_convert.each do |key, value|
         parameter_key = key.to_s
 
-        xml.tag!(parameter_key) do
-          xml << parameter_value_as_xml(value)
+        if key == :SPLIT
+          xml << parameter_value_is_split(value)
+        else
+          xml.tag!(parameter_key) do
+            xml << parameter_value_as_xml(value)
+          end
+        end
+      end
+    
+      xml.target!
+    end
+
+    def parameter_value_is_split(array_of_hashes)
+      xml = Builder::XmlMarkup.new
+
+      array_of_hashes.each do |ob|
+        xml.tag!("SPLIT") do
+          xml << parameter_value_as_xml(ob)
         end
       end
 

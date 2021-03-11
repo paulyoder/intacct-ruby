@@ -30,6 +30,67 @@ describe Function do
     end
   end
 
+  describe :to_xml_with_split do
+    let(:function_type) { :create }
+    let(:object_type)   { :OBJECTTYPE }
+    let(:split_parameters) do
+      {
+        some:           'parameter',
+        another:        'string',
+        SPLIT:          [ {key: 'value'}, {key: 'value'} ],
+        risky:          'risky&><parameter',
+        nested_as_hash:         { nested_key: 'nested > value' },
+        another_nested_as_hash: { another_key: 'another < value' }
+      }
+    end
+
+    let(:function)      { Function.new(function_type, object_type: object_type, parameters: split_parameters) }
+    let(:xml)           { Nokogiri::XML function.to_xml }
+
+    context 'given nested parameters' do
+      context 'given that nested parameters are in hash' do
+        it 'converts those parameters to nested XML' do
+          split_parameters.select { |_, value| value.is_a? Hash }
+                   .each do |key, nested_value|
+            xml_object_key = to_xml_key object_type
+            xml_outer_key = to_xml_key key
+
+            nested_value.each do |inner_key, inner_value|
+              xml_inner_key = to_xml_key inner_key
+              xml_inner_value = xml.xpath(
+                "//#{xml_object_key}/#{xml_outer_key}/#{xml_inner_key}"
+              )
+
+              expect(xml_inner_value.first.children.to_s)
+                .to eq inner_value.encode(xml: :text)
+            end
+          end
+        end
+      end
+
+      context 'given that those parameters are in a SPLIT array' do
+        it 'converts those parameters to an XML list' do
+          split_parameters.select { |_, value| value.is_a? Array }
+                   .each do |outer_key, array_body|
+            xml_object_key = to_xml_key object_type
+            xml_array_key = to_xml_key outer_key # key of XML Array
+            array_body.each do |hash_entry| # because array of hashes
+              hash_entry.each do |array_item_key, array_item_value|
+                xml_array_item_key = to_xml_key array_item_key
+                xml_array_item_value = xml.xpath(
+                  "//#{xml_object_key}/#{xml_array_key}/#{xml_array_item_key}"
+                )
+
+                expect(xml_array_item_value.first.children.to_s)
+                  .to eq array_item_value.encode(xml: :text)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
   describe :to_xml do
     let(:function_type) { :create }
     let(:object_type)   { :OBJECTTYPE }
