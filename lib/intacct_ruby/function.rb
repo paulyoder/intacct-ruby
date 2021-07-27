@@ -6,6 +6,7 @@ module IntacctRuby
   # an object type, (e.g. :customer), and parameters.
   class Function
     ALLOWED_TYPES = %w(
+      query
       readByQuery
       read
       readByName
@@ -54,7 +55,7 @@ module IntacctRuby
       "#{@function_type}-#{@object_type}-#{timestamp}"
     end
 
-    # SPLIT key is an array of implicit objects, if it goes through the normal recursive function the result is 
+    # SPLIT key is an array of implicit objects, if it goes through the normal recursive function the result is
     # combinded into one XML key. The check on 65 will ensure that each implicit object is converted with a SPLIT tag
     def parameter_xml(parameters_to_convert)
       xml = Builder::XmlMarkup.new
@@ -70,7 +71,7 @@ module IntacctRuby
           end
         end
       end
-    
+
       xml.target!
     end
 

@@ -226,6 +226,72 @@ This will fire off a request that looks something like this:
 </request>
 ```
 
+In addition to these functions, you may also call the `query` function. Intacct released this as a newer version of the `readByQuery` function. The `query` function provides for more specific filtering as well as some additional options such as "offset" and "orderby". [Advantages of query](https://developer.intacct.com/web-services/queries/#advantages-of-query).
+
+```ruby
+request = IntacctRuby::Request.new(REQUEST_OPTS)
+
+request.query parameters: {
+   object: 'VENDOR',
+   select: {
+     field: "RECORDNO"
+   },
+   filter: {
+      like: {
+         field: "NAME",
+         value: "A%"
+      }
+   },
+   pagesize: 100,
+   offset: 50,
+   orderby: {
+      order: {
+         field: "RECORDNO",
+         descending: "true"
+      }
+   }
+}
+
+request.send
+```
+
+This will fire off a request that looks something like this:
+
+```xml
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<request>
+  <control><!-- Authentication Params --></control>
+  <operation transaction=\"true\">
+    <authentication><!-- Authentication Params --></authentication>
+    <content>
+      <function controlid=\"query--202	1-07-26 19:27:38 UTC\">
+        <query>
+          <object>VENDOR</object>
+          <select>
+            <field>RECORDNO</field>
+          </select>
+          <filter>
+            <like>
+              <field>NAME</field>
+              <value>A%</value>
+            </like>
+          </filter>
+          <pagesize>100</pagesize>
+          <offset>50</offset>
+          <orderby>
+            <order>
+              <field>RECORDNO</field>
+              <descending>true</descending>
+            </order>
+          </orderby>
+        </query>
+      </function>
+    </content>
+  </operation>
+</request>
+
+```
+
 If there are function errors (e.g. you omitted a required field) you'll see an error on response. Same if you see an internal server error, or any error outside of the 2xx range.
 
 ## Authentication
