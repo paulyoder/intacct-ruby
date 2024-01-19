@@ -233,9 +233,10 @@ request = IntacctRuby::Request.new(REQUEST_OPTS)
 
 request.query parameters: {
    object: 'VENDOR',
-   select: {
-     field: "RECORDNO"
-   },
+   select: [
+     { field: "RECORDNO" },
+     { field: "NAME" },
+   ],
    filter: {
       like: {
          field: "NAME",
