@@ -16,6 +16,7 @@ module IntacctRuby
       update
       delete
       getAPISession
+      lookup
     ).freeze
 
     CU_TYPES = %w(create update).freeze
