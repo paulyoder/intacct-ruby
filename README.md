@@ -337,6 +337,23 @@ REQUEST_OPTS = {
 IntacctRuby::Request.new(REQUEST_OPTS)
 ```
 
+### Authentication with SessionId
+Here's an example on how to obtain a session id value and use it in the request
+```ruby
+request = IntacctRuby::Request.new(REQUEST_OPTS) # REQUEST_OPTS is from the code example above
+request.getAPISession(parameters: {})
+response = request.send
+hash_response = Nori.new.parse(response.response_body.to_xml)
+session_id = hash_response.dig('response', 'operation', 'result', 'data', 'api', 'sessionid')
+request_opts_with_session_id = {
+   sessionid: session_id,
+   senderid: 'some_senderid_value',
+   sender_password: 'some_sender_password_value',
+}
+new_request = IntacctRuby::Request.new(request_opts_with_session_id)
+# ...
+```
+
 ### Important Notes on Authentication
 
 #### These Are Required!
