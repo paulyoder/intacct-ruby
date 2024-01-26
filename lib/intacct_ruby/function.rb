@@ -17,6 +17,7 @@ module IntacctRuby
       delete
       getAPISession
       lookup
+      get_accountbalancesbydimensions
     ).freeze
 
     CU_TYPES = %w(create update).freeze
